@@ -1,0 +1,199 @@
+using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Data;
+using System.Drawing;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using System.Windows.Forms;
+using System.Data.SqlClient;
+namespace WindowsFormsApp3
+{
+    public partial class Form1 : Form
+    {
+        // database connection        
+        SqlConnection baglan = new SqlConnection("Data Source=LAPTOP-FTOS96GG;Initial Catalog=mybook;Integrated Security=True");
+
+
+        public Form1()
+        {
+            InitializeComponent();
+        }
+
+        private void Form1_Load(object sender, EventArgs e)
+        {
+
+        }
+
+
+        /**************************************************************************************
+         *************************************************************************************
+                                         FUNCTIONS
+         *************************************************************************************
+         **************************************************************************************/
+
+        /***********************************************************************
+          *veri tabanindan alinan verileri listview uzerine yaz (send data into listview)
+         ************************************************************************/
+        private void showDataFromDatabase() {
+
+            baglan.Open();
+            SqlCommand komut = new SqlCommand("Select *From bookInfo", baglan);
+            SqlDataReader oku = komut.ExecuteReader();
+            listView1.Items.Clear(); // 1- listview icindeki degerleri sil -> verilerin tekrarlanmamasi icin
+                                                                                      
+            while (oku.Read()) 
+            {
+                ListViewItem ekle = new ListViewItem();
+                ekle.Text = oku["id"].ToString();
+                ekle.SubItems.Add(oku["kitap_adi"].ToString());
+                ekle.SubItems.Add(oku["yazar_adi"].ToString());
+                ekle.SubItems.Add(oku["ceviren"].ToString());
+                ekle.SubItems.Add(oku["yayin_evi"].ToString());
+                ekle.SubItems.Add(oku["sayfa_sayisi"].ToString());
+                ekle.SubItems.Add(oku["yil"].ToString());
+                ekle.SubItems.Add(oku["puan"].ToString());
+                listView1.Items.Add(ekle);
+
+            }
+            baglan.Close();
+        }
+
+        /*********************************************************************** 
+         * verileri veritabanina kaydet (add data into database)
+         ***********************************************************************/
+        public void saveDataToDatabase() {
+
+            // database erisimi kuruluyor  (data base connection)
+            SqlConnection con = new SqlConnection(@"Data Source=LAPTOP-FTOS96GG;Initial Catalog=mybook;Integrated Security=True");
+
+            // id ekleme  (update id)
+            con.Open();
+            SqlCommand komut = new SqlCommand("Select *From idTracker", con);
+            SqlDataReader oku = komut.ExecuteReader();
+
+            while (oku.Read())
+            {
+                label9.Text = (Convert.ToInt32(oku["id"]) + 1).ToString();
+            }
+            con.Close();
+
+            con.Open();
+            SqlCommand mykomutt = new SqlCommand("update idTracker set id='" + label9.Text.ToString() + "' where identfy= "+0+"", con);
+            mykomutt.ExecuteNonQuery();
+            con.Close();
+            // id ekleme bitti 
+
+
+            // Verileri Kaydetme (save data)
+            con.Open();
+            string query = "Insert into bookInfo (id,kitap_adi,yazar_adi,ceviren,yayin_evi,sayfa_sayisi,yil,puan) VALUES (@val,@val1, @val2, @val3, @val4, @val5, @val6, @val7)";
+            SqlCommand cmd = new SqlCommand(query, con);
+            cmd.Parameters.AddWithValue("@val", label9.Text);
+            cmd.Parameters.AddWithValue("@val1", textBox1.Text.ToString());
+            cmd.Parameters.AddWithValue("@val2", textBox2.Text.ToString());
+            cmd.Parameters.AddWithValue("@val3", textBox3.Text.ToString());
+            cmd.Parameters.AddWithValue("@val4", textBox4.Text.ToString());
+            cmd.Parameters.AddWithValue("@val5", textBox5.Text.ToString());
+            cmd.Parameters.AddWithValue("@val6", textBox6.Text.ToString());
+            cmd.Parameters.AddWithValue("@val7", comboBox1.Text.ToString());
+            cmd.ExecuteNonQuery();
+            con.Close();
+            showDataFromDatabase();
+            // Verileri Kaydetme Bitti 
+
+            textBox1.Clear();
+            textBox2.Clear();
+            textBox3.Clear();
+            textBox4.Clear();
+            textBox5.Clear();
+            textBox6.Clear();
+            comboBox1.Text = "".ToString();
+
+
+        }
+
+        /***********************************************************************
+         *veritabanindaki satirlari say (count the row)
+        ***********************************************************************/
+        SqlDataAdapter myDa;
+        DataSet myDs;
+        public void countDatabaseRow() {
+            baglan.Open();
+            string sql = "SELECT * FROM bookInfo";
+            myDs = new DataSet();
+            myDa = new SqlDataAdapter(sql, baglan);
+            myDa.Fill(myDs);
+            label9.Text = myDs.Tables[0].Rows.Count.ToString();
+            baglan.Close();
+        }
+
+        /***********************************************************************
+         * veritabanindaki secilen satiri sil (delete the data in selected row)
+        ***********************************************************************/
+        int id = 0;
+        public void dataDelete()
+        {
+            baglan.Open();
+            SqlCommand komut = new SqlCommand("Delete From bookInfo where id =(" + id +")", baglan);
+            komut.ExecuteNonQuery();
+            baglan.Close();
+            showDataFromDatabase();
+        }
+
+        /***********************************************************************
+         * veritabanindaki satirdaki veriyi degistir (update the data in selected row)
+         ***********************************************************************/
+        public void dataUpdate() {
+            baglan.Open();
+
+            SqlCommand komut = new SqlCommand("update bookInfo set kitap_adi='" + textBox1.Text.ToString() + "', yazar_adi ='" + textBox2.Text.ToString() + "', ceviren ='" + textBox3.Text.ToString() + "', yayin_evi ='" + textBox4.Text.ToString() + "', sayfa_sayisi ='" + textBox5.Text.ToString() + "', yil ='" + textBox6.Text.ToString() + "', puan ='" + comboBox1.Text.ToString() + "' where id =" + id + "", baglan);
+            komut.ExecuteNonQuery();
+            baglan.Close();
+            showDataFromDatabase();
+        }
+
+        /*
+           *************************************************************************************
+           ************************************************************************************* 
+                                                    BUTTONS
+           *************************************************************************************
+           *************************************************************************************
+        */
+
+        /*  Verileri veritabanindan listview uzerine yaz (show data on listview) */
+        private void button1_Click(object sender, EventArgs e) { showDataFromDatabase(); }
+
+        /*  verileri kaydet (save) */
+        private void button2_Click(object sender, EventArgs e) { saveDataToDatabase();  }
+
+        /*  veritabanindaki satirlari say */
+        private void button3_Click(object sender, EventArgs e) { countDatabaseRow(); baglan.Close(); }
+
+        private void button4_Click(object sender, EventArgs e) { dataDelete();  }
+
+        /*  listedeki satira tiklaninca degerleri metin kutusu icine gonder 
+          (write the selected data into textbox)
+             */
+        private void listView1_MouseDoubleClick(object sender, MouseEventArgs e)
+        {
+            id = int.Parse(listView1.SelectedItems[0].SubItems[0].Text);
+            textBox1.Text = listView1.SelectedItems[0].SubItems[1].Text;
+            textBox2.Text = listView1.SelectedItems[0].SubItems[2].Text;
+            textBox3.Text = listView1.SelectedItems[0].SubItems[3].Text;
+            textBox4.Text = listView1.SelectedItems[0].SubItems[4].Text;
+            textBox5.Text = listView1.SelectedItems[0].SubItems[5].Text;
+            textBox6.Text = listView1.SelectedItems[0].SubItems[6].Text;
+            comboBox1.Text = listView1.SelectedItems[0].SubItems[7].Text;
+        }
+
+        /*  verileri guncelle (update) */
+
+        private void button5_Click(object sender, EventArgs e)
+        {
+
+            dataUpdate();
+        }
+    }
+}

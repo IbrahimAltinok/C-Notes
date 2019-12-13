@@ -1,0 +1,14 @@
+  /*  listedeki satira tiklaninca degerleri metin kutusu icine gonder 
+          (write the selected data into textbox)
+   */
+        private void listView1_MouseDoubleClick(object sender, MouseEventArgs e)
+        {
+            id = int.Parse(listView1.SelectedItems[0].SubItems[0].Text);
+            textBox1.Text = listView1.SelectedItems[0].SubItems[1].Text;
+            textBox2.Text = listView1.SelectedItems[0].SubItems[2].Text;
+            textBox3.Text = listView1.SelectedItems[0].SubItems[3].Text;
+            textBox4.Text = listView1.SelectedItems[0].SubItems[4].Text;
+            textBox5.Text = listView1.SelectedItems[0].SubItems[5].Text;
+            textBox6.Text = listView1.SelectedItems[0].SubItems[6].Text;
+            comboBox1.Text = listView1.SelectedItems[0].SubItems[7].Text;
+        }

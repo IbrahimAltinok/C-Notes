@@ -1,0 +1,11 @@
+        /***********************************************************************
+         * veritabanindaki satirdaki veriyi degistir (update the data in selected row)
+         ***********************************************************************/
+        public void dataUpdate() {
+            baglan.Open();
+
+            SqlCommand komut = new SqlCommand("update bookInfo set kitap_adi='" + textBox1.Text.ToString() + "', yazar_adi ='" + textBox2.Text.ToString() + "', ceviren ='" + textBox3.Text.ToString() + "', yayin_evi ='" + textBox4.Text.ToString() + "', sayfa_sayisi ='" + textBox5.Text.ToString() + "', yil ='" + textBox6.Text.ToString() + "', puan ='" + comboBox1.Text.ToString() + "' where id =" + id + "", baglan);
+            komut.ExecuteNonQuery();
+            baglan.Close();
+            showDataFromDatabase();
+        }

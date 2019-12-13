@@ -1,0 +1,12 @@
+ /***********************************************************************
+         * veritabanindaki secilen satiri sil (delete the data in selected row)
+        ***********************************************************************/
+        int id = 0;
+        public void dataDelete()
+        {
+            baglan.Open();
+            SqlCommand komut = new SqlCommand("Delete From bookInfo where id =(" + id +")", baglan);
+            komut.ExecuteNonQuery();
+            baglan.Close();
+            showDataFromDatabase();
+        }
